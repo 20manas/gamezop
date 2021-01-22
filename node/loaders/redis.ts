@@ -1,5 +1,9 @@
 import * as redis from 'redis';
 
-const client = redis.createClient();
+export const client = redis.createClient();
 
-export default client;
+export const createSubscriber = (channel: string) => {
+  const subscriber = redis.createClient();
+  subscriber.subscribe(channel);
+  return subscriber;
+}

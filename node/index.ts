@@ -3,18 +3,18 @@ import * as qs from 'querystring';
 
 require('dotenv').config();
 
-import redisClient from './loaders/redis';
+import * as redis from './loaders/redis';
 import * as db from './loaders/postgres';
 
 const getUserFromRedis = (userId: string) => {
   try {
-    redisClient.get(userId, (err, res) => {
+    redis.client.get(userId, (err, res) => {
       if (err) throw err;
 
       const user = JSON.parse(res);
 
       db.query('INSERT INTO users2 VALUES ($1, $2, $3)', [user.FirstName, user.LastName, user.Age]);
-      redisClient.del(userId);
+      redis.client.del(userId);
     });
   } catch (err) {
     console.error(err);
@@ -44,6 +44,13 @@ const server = http.createServer(async (req, res) => {
   } catch (err) {
     console.error(err);
   }
+});
+
+const redisSuscriber = redis.createSubscriber('newUserCreated');
+redisSuscriber.on('message', (channel, message) => {
+  if (channel !== 'newUserCreated') return;
+
+  getUserFromRedis(message);
 });
 
 server.listen(3000);

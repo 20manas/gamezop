@@ -25,21 +25,26 @@ var rdb = redis.NewClient(&redis.Options{
 	DB:       0,
 })
 
-func addDataToRedis(user User) {
+func addDataToRedis(user User) string {
 	userKey := "user:" + xid.New().String()
 	userString, err := json.Marshal(user)
 	if err != nil {
 		panic(err)
 	}
 
-	rdb.Set(ctx, userKey, userString, 0).Err()
+	errSet := rdb.Set(ctx, userKey, userString, 0).Err()
+	if errSet != nil {
+		panic(err)
+	}
+
+	return userKey
+}
+
+func notifyNodeService(userKey string) {
+	err := rdb.Publish(ctx, "newUserCreated", userKey).Err()
 	if err != nil {
 		panic(err)
 	}
-}
-
-func notifyNodeService() {
-
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,13 +60,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		addDataToRedis(data)
-		log.Println(data.FirstName)
+		notifyNodeService(addDataToRedis(data))
 	}
 }
 
 func main() {
 	http.HandleFunc("/", indexHandler)
-	log.Println("Started Server")
+	log.Println("Started Server at port 8000")
 	http.ListenAndServe(":8000", nil)
 }
