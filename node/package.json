@@ -1,0 +1,19 @@
+{
+  "name": "gamezop",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "20manas",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "pg": "^8.5.1",
+    "redis": "^3.0.2",
+    "ts-node": "^9.1.1"
+  },
+  "devDependencies": {
+    "@types/redis": "^2.8.28"
+  }
+}
