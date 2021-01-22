@@ -1,19 +1,41 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/rs/xid"
 )
 
+// User describes the payload.
 type User struct {
 	FirstName string
 	LastName  string
 	Age       int
 }
 
-func addDataToRedis(user User) {
+var ctx = context.Background()
 
+var rdb = redis.NewClient(&redis.Options{
+	Addr:     "localhost:6379",
+	Password: "",
+	DB:       0,
+})
+
+func addDataToRedis(user User) {
+	userKey := "user:" + xid.New().String()
+	userString, err := json.Marshal(user)
+	if err != nil {
+		panic(err)
+	}
+
+	rdb.Set(ctx, userKey, userString, 0).Err()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func notifyNodeService() {
