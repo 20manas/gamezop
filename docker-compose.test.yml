@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  postgres:
+    volumes:
+      - postgrestestvolume:/var/lib/postgresql/data/test
+    environment:
+      PGDATA: /var/lib/postgresql/data/test
+volumes:
+  postgrestestvolume:

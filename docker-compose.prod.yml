@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  postgres:
+    volumes:
+      - postgresvolume:/var/lib/postgresql/data
+volumes:
+  postgresvolume:

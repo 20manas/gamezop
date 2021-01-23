@@ -25,6 +25,9 @@ var rdb = redis.NewClient(&redis.Options{
 	DB:       0,
 })
 
+// Adds a string to redis with key as "user:<unique_id>" (where <unique_id> is a unique id generated
+// using xid) and value as the JSON stringified version of `user`.
+// Returns the key.
 func addDataToRedis(user User) string {
 	userKey := "user:" + xid.New().String()
 	userString, err := json.Marshal(user)
@@ -40,6 +43,7 @@ func addDataToRedis(user User) string {
 	return userKey
 }
 
+// Publish `userKey` as a message on the "newUserCreated" channel on Redis.
 func notifyNodeService(userKey string) {
 	err := rdb.Publish(ctx, "newUserCreated", userKey).Err()
 	if err != nil {
@@ -50,11 +54,14 @@ func notifyNodeService(userKey string) {
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		var data User
+
+		// Try to convert POST body to JSON.
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 			http.Error(w, "The JSON format is incorrect", http.StatusBadRequest)
 			return
 		}
 
+		// Check if all fields required by User are present.
 		if len(data.FirstName) == 0 || len(data.LastName) == 0 || data.Age == 0 {
 			http.Error(w, "The JSON data is incorrect or incomplete", http.StatusBadRequest)
 			return

@@ -26,8 +26,6 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
-    volumes:
-      - postgresvolume:/var/lib/postgresql/data
 
   node:
     image: node:12-alpine
@@ -41,6 +39,7 @@ services:
       - PGHOST=postgres
       - PGDATABASE=postgres
       - PGPORT=5432
+      - REDIS_HOST=redis
     volumes:
       - ./node:/home/node/app
     ports:
@@ -49,5 +48,3 @@ services:
     depends_on:
       - redis
       - postgres
-volumes:
-  postgresvolume:
