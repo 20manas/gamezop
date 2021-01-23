@@ -2,18 +2,18 @@
   "name": "gamezop",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "20manas",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "nodemon": "^2.0.7",
     "pg": "^8.5.1",
-    "redis": "^3.0.2",
-    "ts-node": "^9.1.1"
+    "redis": "^3.0.2"
   },
-  "devDependencies": {
-    "@types/redis": "^2.8.28"
-  }
+  "devDependencies": {}
 }

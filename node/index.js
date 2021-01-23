@@ -1,19 +1,21 @@
 import * as http from 'http';
 import * as qs from 'querystring';
 
-require('dotenv').config();
+import dotenv from 'dotenv';
+if (process.env.NODE_ENV !== 'production') dotenv.config();
 
-import * as redis from './loaders/redis';
-import * as db from './loaders/postgres';
+import * as redis from './loaders/redis.js';
+import * as db from './loaders/postgres.js';
 
-const getUserFromRedis = (userId: string) => {
+const getUserFromRedis = (userId) => {
   try {
     redis.client.get(userId, (err, res) => {
       if (err) throw err;
+      if (!res) throw 'User ID does not exist';
 
       const user = JSON.parse(res);
 
-      db.query('INSERT INTO users2 VALUES ($1, $2, $3)', [user.FirstName, user.LastName, user.Age]);
+      db.query('INSERT INTO users VALUES ($1, $2, $3)', [user.FirstName, user.LastName, user.Age]);
       redis.client.del(userId);
     });
   } catch (err) {
@@ -23,6 +25,8 @@ const getUserFromRedis = (userId: string) => {
 
 const server = http.createServer(async (req, res) => {
   try {
+    if (!req.url) return res.end();
+
     if (req.method === 'GET') {
       const userFirstName = qs.parse(req.url.split('?')[1]).user;
       if (!userFirstName) {
@@ -33,7 +37,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       const result = await db.query(
-        'SELECT first_name, last_name, age FROM users2 WHERE first_name=$1',
+        'SELECT first_name, last_name, age FROM users WHERE first_name=$1',
         [userFirstName],
       );
 

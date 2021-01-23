@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:6-alpine
+    restart: always
+    ports:
+      - 6379:6379
+
+  golang:
+    image: golang:1.15-alpine
+    volumes:
+      - ./go:/go/src/go
+    working_dir: /go/src/go
+    command: go run main.go
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - redis
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresvolume:/var/lib/postgresql/data
+
+  node:
+    image: node:12-alpine
+    user: node
+    working_dir: /home/node/app
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGPORT=5432
+    volumes:
+      - ./node:/home/node/app
+    ports:
+      - 3000:3000
+    command: npm start
+    depends_on:
+      - redis
+      - postgres
+volumes:
+  postgresvolume:

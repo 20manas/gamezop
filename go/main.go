@@ -20,7 +20,7 @@ type User struct {
 var ctx = context.Background()
 
 var rdb = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "redis:6379",
 	Password: "",
 	DB:       0,
 })
@@ -34,7 +34,7 @@ func addDataToRedis(user User) string {
 
 	errSet := rdb.Set(ctx, userKey, userString, 0).Err()
 	if errSet != nil {
-		panic(err)
+		panic(errSet)
 	}
 
 	return userKey
@@ -66,6 +66,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", indexHandler)
-	log.Println("Started Server at port 8000")
-	http.ListenAndServe(":8000", nil)
+	log.Println("Started Server at port 80")
+	http.ListenAndServe(":80", nil)
 }
