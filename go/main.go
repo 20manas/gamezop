@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/rs/xid"
@@ -20,8 +21,8 @@ type User struct {
 var ctx = context.Background()
 
 var rdb = redis.NewClient(&redis.Options{
-	Addr:     "redis:6379",
-	Password: "",
+	Addr:     os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT"),
+	Password: os.Getenv("REDIS_PASS"),
 	DB:       0,
 })
 

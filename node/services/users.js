@@ -12,7 +12,9 @@ export const onNewUserCreated = async (userId) => {
     await usersdb.addNewUser(user.FirstName, user.LastName, user.Age);
 
     await redis.client.del(userId);
+    return true;
   } catch (err) {
     console.error(err);
+    return false;
   }
 }

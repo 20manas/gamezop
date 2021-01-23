@@ -1,5 +1,9 @@
 version: '3.8'
 services:
+  golang:
+    environment:
+      - CGO_ENABLED=0
+    command: go test -v
   postgres:
     volumes:
       - postgrestestvolume:/var/lib/postgresql/data/test

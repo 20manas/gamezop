@@ -44,7 +44,7 @@ export const server = http.createServer(
 redis.createSubscriber('newUserCreated').then(
   subscriber => subscriber.nodeRedis.on(
     'message',
-    async (channel, message) => channel !== 'newUserCreated' && await onNewUserCreated(message)
+    async (channel, message) => channel === 'newUserCreated' && await onNewUserCreated(message)
   )
 );
 

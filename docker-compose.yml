@@ -10,9 +10,12 @@ services:
     image: golang:1.15-alpine
     volumes:
       - ./go:/go/src/go
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASS=
     working_dir: /go/src/go
-    command: go run main.go
-    restart: always
+    restart: on-failure
     ports:
       - 80:80
     depends_on:
@@ -31,7 +34,7 @@ services:
     image: node:12-alpine
     user: node
     working_dir: /home/node/app
-    restart: always
+    restart: on-failure
     environment:
       - PGUSER=postgres
       - PGPASSWORD=postgres

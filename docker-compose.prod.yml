@@ -1,5 +1,8 @@
 version: '3.8'
 services:
+  golang:
+    restart: always
+    command: go run main.go
   postgres:
     volumes:
       - postgresvolume:/var/lib/postgresql/data
