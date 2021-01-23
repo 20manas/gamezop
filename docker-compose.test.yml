@@ -5,5 +5,9 @@ services:
       - postgrestestvolume:/var/lib/postgresql/data/test
     environment:
       PGDATA: /var/lib/postgresql/data/test
+  node:
+    environment:
+      - NODE_ENV=testing
+    command: npm test
 volumes:
   postgrestestvolume:

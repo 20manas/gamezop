@@ -1,14 +1,11 @@
 import * as http from 'http';
 import * as qs from 'querystring';
 
-import dotenv from 'dotenv';
-if (process.env.NODE_ENV !== 'production') dotenv.config();
-
 import * as redis from './loaders/redis.js';
 import {onNewUserCreated} from './services/users.js';
 import * as usersdb from './database/users.js';
 
-const server = http.createServer(
+export const server = http.createServer(
   /**
    * Accepts GET request with query params {user: string}. Fetches all users with
    * first_name = user.
@@ -23,11 +20,15 @@ const server = http.createServer(
         if (!userFirstName) {
           res.writeHead(400);
           res.write('Incorrect Params');
-          res.end();
-          return;
+          return res.end();
         }
 
         const data = await usersdb.getUsersByFirstName(userFirstName);
+
+        if (data.length == 0) {
+          res.writeHead(404);
+          return res.end();
+        }
 
         // Send back JSON stringified user.
         res.writeHead(200, {'Content-Type': 'application/json'});
@@ -40,11 +41,12 @@ const server = http.createServer(
   }
 );
 
-const redisSuscriber = redis.createSubscriber('newUserCreated');
-redisSuscriber.on(
-  'message',
-  (channel, message) => channel !== 'newUserCreated' && onNewUserCreated(message),
+redis.createSubscriber('newUserCreated').then(
+  subscriber => subscriber.nodeRedis.on(
+    'message',
+    async (channel, message) => channel !== 'newUserCreated' && await onNewUserCreated(message)
+  )
 );
 
 server.listen(3000);
-console.log('Listening at port 3000.');
+if (process.env.NODE_ENV !== 'testing') console.log('Listening at port 3000.');

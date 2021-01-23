@@ -1,7 +1,7 @@
 import pg from 'pg';
 
 const pool = new pg.Pool();
-console.log('Pool created');
+if (process.env.NODE_ENV !== 'testing') console.log('Pool created');
 
 export const client = () => pool.connect();
 export const query = (text, params) => pool.query(text, params);
